@@ -180,7 +180,7 @@ def activate(request):
         return render(request, 'account_activation_invalid.html')
 
 
-# Send otp
+# Send otp.....and login to the system
 
 def otp_login(request):
     if request.method == 'POST':
@@ -218,36 +218,3 @@ def enter_otp(request):
             return render(request, 'registration/otp.html', context)
 
     return render(request, 'registration/otp.html', context)
-
-
-# def send_otp(mobile, otp):
-#     print("FUNCTION CALLED")
-#     conn = http.client.HTTPSConnection("api.msg91.com")
-#     authkey = settings.AUTH_KEY
-#     headers = {'content-type': "application/json"}
-#     url = "http://control.msg91.com/api/sendotp.php?otp="+otp+"&message=" + \
-#         "Your otp is "+otp + "&mobile="+mobile+"&authkey="+authkey+"&country=91"
-#     conn.request("GET", url, headers=headers)
-#     res = conn.getresponse()
-#     data = res.read()
-#     print(data)
-#     return None
-
-
-# def login_attempt(request):
-#     if request.method == 'POST':
-#         mobile = request.POST.get('mobile')
-
-#         user = Profile.objects.filter(mobile=mobile).first()
-
-#         if user is None:
-#             context = {'message': 'User not found', 'class': 'danger'}
-#             return render(request, 'login.html', context)
-
-#         otp = str(random.randint(1000, 9999))
-#         user.otp = otp
-#         user.save()
-#         send_otp(mobile, otp)
-#         request.session['mobile'] = mobile
-#         return redirect('login_otp')
-#     return render(request, 'login.html')
