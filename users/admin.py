@@ -54,7 +54,7 @@ class MyUserAdmin(AuthUserAdmin):
     add_form = MyUserCreationForm
     fieldsets = AuthUserAdmin.fieldsets + (
         ('Extended Field', {'fields': ('is_student',
-                                       'is_teacher', 'email_confirmed')}),
+                                       'is_teacher', 'email_confirmed', 'phone_number')}),
     )
     list_display = ('username', 'is_student', 'is_teacher',
                     'is_superuser', 'is_active')

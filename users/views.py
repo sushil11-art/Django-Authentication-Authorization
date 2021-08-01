@@ -1,3 +1,4 @@
+
 from users.decorators import student_required, teacher_required
 from users.forms import TeacherSignUpForm, StudentSignUpForm
 from django.shortcuts import render, redirect
@@ -21,7 +22,16 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from users.tokens import account_activation_token
+
 # ............................
+
+# send otp...............
+
+from twilio.rest import Client
+import os
+
+from dotenv import load_dotenv
+load_dotenv()
 
 
 def index(request):
@@ -165,3 +175,73 @@ def activate(request):
         return redirect('index')
     else:
         return render(request, 'account_activation_invalid.html')
+
+
+# Send otp
+
+
+# Find your Account SID and Auth Token at twilio.com/console
+# and set the environment variables. See http://twil.io/secure
+# account_sid = os.environ['TWILIO_ACCOUNT_SID']
+# auth_token = os.environ['TWILIO_AUTH_TOKEN']
+
+def send_otp():
+    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+    auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+    client = Client(account_sid, auth_token)
+    TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+    message = client.messages.create(
+        body="This is your required otp for login.", from_=TWILIO_PHONE_NUMBER, to='+15558675310')
+
+# print(message.sid)
+
+# def send_otp(mobile, otp):
+#     print("FUNCTION CALLED")
+#     conn = http.client.HTTPSConnection("api.msg91.com")
+#     authkey = settings.AUTH_KEY
+#     headers = {'content-type': "application/json"}
+#     url = "http://control.msg91.com/api/sendotp.php?otp="+otp+"&message=" + \
+#         "Your otp is "+otp + "&mobile="+mobile+"&authkey="+authkey+"&country=91"
+#     conn.request("GET", url, headers=headers)
+#     res = conn.getresponse()
+#     data = res.read()
+#     print(data)
+#     return None
+
+
+# def login_attempt(request):
+#     if request.method == 'POST':
+#         mobile = request.POST.get('mobile')
+
+#         user = Profile.objects.filter(mobile=mobile).first()
+
+#         if user is None:
+#             context = {'message': 'User not found', 'class': 'danger'}
+#             return render(request, 'login.html', context)
+
+#         otp = str(random.randint(1000, 9999))
+#         user.otp = otp
+#         user.save()
+#         send_otp(mobile, otp)
+#         request.session['mobile'] = mobile
+#         return redirect('login_otp')
+#     return render(request, 'login.html')
+
+
+# def login_otp(request):
+#     mobile = request.session['mobile']
+#     context = {'mobile': mobile}
+#     if request.method == 'POST':
+#         otp = request.POST.get('otp')
+#         profile = Profile.objects.filter(mobile=mobile).first()
+
+#         if otp == profile.otp:
+#             user = User.objects.get(id=profile.user.id)
+#             login(request, user)
+#             return redirect('cart')
+#         else:
+#             context = {'message': 'Wrong OTP',
+#                        'class': 'danger', 'mobile': mobile}
+#             return render(request, 'login_otp.html', context)
+
+#     return render(request, 'login_otp.html', context)
