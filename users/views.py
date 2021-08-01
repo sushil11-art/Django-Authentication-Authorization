@@ -29,6 +29,9 @@ from users.tokens import account_activation_token
 
 from twilio.rest import Client
 import os
+import random
+from users.send_otp import send_otp
+
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -179,21 +182,43 @@ def activate(request):
 
 # Send otp
 
+def otp_login(request):
+    if request.method == 'POST':
+        mobile = request.POST.get('mobile')
 
-# Find your Account SID and Auth Token at twilio.com/console
-# and set the environment variables. See http://twil.io/secure
-# account_sid = os.environ['TWILIO_ACCOUNT_SID']
-# auth_token = os.environ['TWILIO_AUTH_TOKEN']
+        user = User.objects.filter(phone_number=mobile).first()
 
-def send_otp():
-    account_sid = os.getenv("TWILIO_ACCOUNT_SID")
-    auth_token = os.getenv("TWILIO_AUTH_TOKEN")
-    client = Client(account_sid, auth_token)
-    TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
-    message = client.messages.create(
-        body="This is your required otp for login.", from_=TWILIO_PHONE_NUMBER, to='+15558675310')
+        if user is None:
+            context = {'message': 'User not found', 'class': 'danger'}
+            return render(request, 'registration/otp_login.html', context)
 
-# print(message.sid)
+        otp = str(random.randint(1000, 9999))
+        user.otp = otp
+        user.save()
+        send_otp(otp, mobile)
+        request.session['mobile'] = mobile
+        return redirect('enter_otp')
+    return render(request, 'registration/otp_login.html')
+
+
+def enter_otp(request):
+    mobile = request.session['mobile']
+    context = {'mobile': mobile}
+    if request.method == 'POST':
+        otp = request.POST.get('otp')
+        user = User.objects.filter(phone_number=mobile).first()
+
+        if otp == user.otp:
+            user = User.objects.get(id=user.id)
+            login(request, user)
+            return redirect('index')
+        else:
+            context = {'message': 'Wrong OTP',
+                       'class': 'danger', 'mobile': mobile}
+            return render(request, 'registration/otp.html', context)
+
+    return render(request, 'registration/otp.html', context)
+
 
 # def send_otp(mobile, otp):
 #     print("FUNCTION CALLED")
@@ -226,22 +251,3 @@ def send_otp():
 #         request.session['mobile'] = mobile
 #         return redirect('login_otp')
 #     return render(request, 'login.html')
-
-
-# def login_otp(request):
-#     mobile = request.session['mobile']
-#     context = {'mobile': mobile}
-#     if request.method == 'POST':
-#         otp = request.POST.get('otp')
-#         profile = Profile.objects.filter(mobile=mobile).first()
-
-#         if otp == profile.otp:
-#             user = User.objects.get(id=profile.user.id)
-#             login(request, user)
-#             return redirect('cart')
-#         else:
-#             context = {'message': 'Wrong OTP',
-#                        'class': 'danger', 'mobile': mobile}
-#             return render(request, 'login_otp.html', context)
-
-#     return render(request, 'login_otp.html', context)

@@ -20,7 +20,7 @@ from django.conf.urls import url
 # from django.urls.conf import include
 from django.views.generic.base import RedirectView
 from users import views
-from users.views import index, teacher_signup, student_signup, auth_login, auth_logout, studentView
+from users.views import index, teacher_signup, student_signup, auth_login, auth_logout, studentView, enter_otp
 
 urlpatterns = [
     path('', RedirectView.as_view(url="index/")),
@@ -28,6 +28,8 @@ urlpatterns = [
     path('teacher/signup/', views.teacher_signup, name="teacher_signup"),
     path('student/signup/', views.student_signup, name="student_signup"),
     path('login/', views.auth_login, name="login"),
+    path('otp_login/', views.otp_login, name="otp_login"),
+    path('enter_otp/', views.enter_otp, name="enter_otp"),
     path('logout/', views.auth_logout, name="logout"),
     path('student/view', views.studentView, name="student_view"),
     path('account_activation_sent/', views.account_activation_sent,

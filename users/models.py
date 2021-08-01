@@ -10,7 +10,7 @@ class User(AbstractUser):
     is_teacher = models.BooleanField(default=False)
     email_confirmed = models.BooleanField(default=False)
     phone_number = PhoneNumberField(blank=True)
-    otp = models.CharField(max_length=6)
+    otp = models.CharField(max_length=6, blank=True, null=True)
 
 
 class Student(models.Model):
